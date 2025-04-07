@@ -1,0 +1,32 @@
+{
+    "data": {
+        "additional_parameters": [],
+        "app_id": "P-JV2nVIRUtgyPO5xRNeYll2mT4F5QG4bS",
+        "method": "CREATE",
+        "object_data": {
+            "amount": "0",
+            "amount_med_taken": "0",
+            "cleints_id": "65f2b5dd-2cbf-4e42-8d7d-2d186f6b2c25",
+            "client_name": "Mirabbos",
+            "client_surname": "Botirjonov",
+            "comment": "\u003cp\u003edasdas\u003c/p\u003e",
+            "company_service_environment_id": "dcd76a3d-c71b-4998-9e5c-ab1e783264d0",
+            "company_service_project_id": "a4dc1f1c-d20f-4c1a-abf5-b819076604bc",
+            "created_time": "2023-10-02T04:53:16.911Z",
+            "default_number": 1,
+            "doctor_id": "61ba244d-ee0d-4581-9f54-75d180bbdb05",
+            "guid": "c8b346da-a27b-4852-be4f-70ce99d391af",
+            "ill_id": "1e1cac8a-8ae6-494d-a8f3-c8a9cc9e5119",
+            "ill_name": "A02.0 Сальмонеллезный энтерит",
+            "increment_id": "N-000477",
+            "invite": false,
+            "multi": []
+        },
+        "object_data_before_update": null,
+        "object_ids": [
+            "c8b346da-a27b-4852-be4f-70ce99d391af"
+        ],
+        "table_slug": "naznachenie",
+        "user_id": "0de8f626-388c-4ea8-8213-aa54c1ad4a5d"
+    }
+}
