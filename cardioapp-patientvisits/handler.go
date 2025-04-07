@@ -157,3 +157,64 @@ userNotif := UserNotification{
 }
 
 SendNotification(userNotif)
+
+var (
+	puls     float64
+	pressure string
+)
+
+today := time.Now()
+
+firstDateTime := time.Date(today.Year(), today.Month(), today.Day(), 0, 0, 0, 0, time.UTC)
+firstDateTime = firstDateTime.Add(time.Hour)
+lastDateTime := today.Add(time.Hour)
+
+firstDateTimeStr := firstDateTime.Format("2006-01-02T15:04:05Z")
+lastDateTimeStr := lastDateTime.Format("2006-01-02T15:04:05Z")
+
+newReq := Request{
+	Data: map[string]interface{}{
+		"cleints_id": cast.ToString(naznacheniyaData.Data.Data.Response["cleints_id"]),
+		"order": map[string]interface{}{
+			"createdAt": -1,
+		},
+		"date": map[string]interface{}{
+			"$lte": lastDateTimeStr,
+			"$gte": firstDateTimeStr,
+		},
+	},
+}
+pulsData, err, response := GetListObject(urlConst, "puls", newReq)
+if err != nil {
+	responseByte, _ := json.Marshal(response)
+	return string(responseByte)
+}
+if len(pulsData.Data.Data.Response) > 0 {
+	puls = pulsData.Data.Data.Response[0]["puls"].(float64)
+	sistolicheskoe := strconv.FormatFloat(cast.ToFloat64(pulsData.Data.Data.Response[0]["sistolicheskoe"]), 'f', 0, 64)
+	diastolicheskoe := strconv.FormatFloat(cast.ToFloat64(pulsData.Data.Data.Response[0]["diastolicheskoe"]), 'f', 0, 64)
+	pressure = diastolicheskoe + "/" + sistolicheskoe
+}
+
+createObjectRequest = Request{
+	Data: map[string]interface{}{
+		"date":           cast.ToString(naznacheniyaData.Data.Data.Response["created_time"]),
+		"doctor_id":      cast.ToString(naznacheniyaData.Data.Data.Response["doctor_id"]),
+		"client_id":      cast.ToString(naznacheniyaData.Data.Data.Response["cleints_id"]),
+		"naznachenie_id": cast.ToString(naznacheniyaData.Data.Data.Response["guid"]),
+		"clinic_name":    doctorData.Data.Data.Response["hospital"],
+		"id_doctor":      doctorData.Data.Data.Response["doctor_id"],
+		"doctor_name":    doctorData.Data.Data.Response["doctor_name"],
+		"doctor_phone":   doctorData.Data.Data.Response["phone_number"],
+		"id_patient":     patientData.Data.Data.Response["user_number_id"],
+		"patient_name":   fullName,
+		"patient_phone":  patientData.Data.Data.Response["phone_number"],
+		"pulse":          puls,
+		"pressure":       pressure,
+	},
+}
+_, err, response = CreateObject(urlConst, "report_for_doctor", createObjectRequest)
+if err != nil {
+	responseByte, _ := json.Marshal(response)
+	return string(responseByte)
+}
