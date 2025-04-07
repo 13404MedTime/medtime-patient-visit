@@ -94,3 +94,66 @@ if cast.ToString(request.Data["method"]) == "CREATE" {
 		}
 	}
 }
+
+patientData, err, response := GetSingleObject(urlConst, "cleints", cast.ToString(naznacheniyaData.Data.Data.Response["cleints_id"]))
+if err != nil {
+	responseByte, _ := json.Marshal(response)
+	return string(responseByte)
+}
+
+fullName := patientData.Data.Data.Response["cleint_lastname"].(string) + cast.ToString(patientData.Data.Data.Response["client_name"])
+createObjectRequest := Request{
+	Data: map[string]interface{}{
+		"date":           cast.ToString(naznacheniyaData.Data.Data.Response["created_time"]),
+		"doctor_id":      cast.ToString(naznacheniyaData.Data.Data.Response["doctor_id"]),
+		"client_id":      cast.ToString(naznacheniyaData.Data.Data.Response["cleints_id"]),
+		"naznachenie_id": cast.ToString(naznacheniyaData.Data.Data.Response["guid"]),
+		"clinic_name":    doctorData.Data.Data.Response["hospital"],
+		"id_doctor":      doctorData.Data.Data.Response["doctor_id"],
+		"doctor_name":    doctorData.Data.Data.Response["doctor_name"],
+		"doctor_phone":   doctorData.Data.Data.Response["phone_number"],
+		"id_patient":     patientData.Data.Data.Response["user_number_id"],
+		"patient_name":   fullName,
+		"patient_phone":  patientData.Data.Data.Response["phone_number"],
+	},
+}
+_, err, response = CreateObject(urlConst, "report_for_admin", createObjectRequest)
+if err != nil {
+	responseByte, _ := json.Marshal(response)
+	return string(responseByte)
+}
+
+var (
+	title   string = "У вас новое назначение от врача!"
+	body    string = "Вам назначены препараты для лечения. Пожалуйста, ознакомьтесь с расписанием приема препаратов."
+	titleUz string = "Sizda shifokor tomonidan yangi tayinlovlar bor!"
+	bodyUz  string = "Sizga davolanish uchun dorilar buyurilgan. Iltimos, dori-darmonlarni qabul qilish jadvalini tekshiring."
+)
+notifRequest := Request{
+	Data: map[string]interface{}{
+		"client_id":    cast.ToString(naznacheniyaData.Data.Data.Response["cleints_id"]),
+		"title":        title,
+		"body":         body,
+		"title_uz":     titleUz,
+		"body_uz":      bodyUz,
+		"preparati_id": "",
+		"is_read":      false,
+	},
+}
+_, err, response = CreateObject(urlConst, "notifications", notifRequest)
+if err != nil {
+	responseByte, _ := json.Marshal(response)
+	return string(responseByte)
+}
+
+userNotif := UserNotification{
+	Title:        title,
+	Body:         body,
+	TitleUz:      titleUz,
+	BodyUz:       bodyUz,
+	Fcm:          cast.ToString(patientData.Data.Data.Response["fcm_token"]),
+	Platform:     cast.ToFloat64(patientData.Data.Data.Response["platform"]),
+	UserLanguage: cast.ToString(patientData.Data.Data.Response["user_lang"]),
+}
+
+SendNotification(userNotif)
